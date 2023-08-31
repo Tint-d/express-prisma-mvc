@@ -1,27 +1,18 @@
 import { Request, Response } from "express";
 import { prisma } from "../db/prisma";
-import { CreateProductRequest } from "../Typings/Type";
+import { CategoryType, CreateProductRequest } from "../Typings/Type";
 
-export const createProduct = async (req: Request, res: Response) => {
+export const createCategory = async (req: Request, res: Response) => {
   try {
-    const { name, price, description, categoryId }: CreateProductRequest =
-      req.body;
-    const pd = await prisma.product.create({
+    const { name }: CategoryType = req.body;
+    console.log(name);
+
+    const cat = await prisma.category.create({
       data: {
         name,
-        price,
-        description,
-        categoryId,
-      },
-      include: {
-        category: { select: { name: true } }, // Include the category name in the response
       },
     });
-
-    res.status(200).json({
-      success: true,
-      data: { product: pd },
-    });
+    res.status(200).json({ success: true, data: { category: cat } });
   } catch (error) {
     res
       .status(500)
@@ -29,7 +20,7 @@ export const createProduct = async (req: Request, res: Response) => {
   }
 };
 
-export const getProducts = async (req: Request, res: Response) => {
+export const getCategory = async (req: Request, res: Response) => {
   try {
     const { sortBy, sortOrder, search, page, pageSize } = req.query;
 
@@ -43,23 +34,13 @@ export const getProducts = async (req: Request, res: Response) => {
         [sortBy as string]: sortOrder === "desc" ? "desc" : "asc",
       };
     }
-    const pd = await prisma.product.findMany({
+    const pd = await prisma.category.findMany({
       orderBy: sortingOptions,
       where: searchQuery,
       skip,
       take: itemsPerPage,
-      include: {
-        category: true, // Include the associated category
-      },
     });
-
-    const transformedProducts = pd.map((product) => ({
-      ...product,
-      categoryId: undefined,
-    }));
-    res
-      .status(200)
-      .json({ success: true, data: { products: transformedProducts } });
+    res.status(200).json({ success: true, data: { products: pd } });
   } catch (error) {
     console.error("Error fetching products:", error);
     res.status(500).json({
@@ -69,12 +50,12 @@ export const getProducts = async (req: Request, res: Response) => {
   }
 };
 
-export const updateProducts = async (req: Request, res: Response) => {
+export const updateCategory = async (req: Request, res: Response) => {
   const pdId = parseInt(req.params.id);
   const updatedProductData: CreateProductRequest = req.body;
 
   try {
-    const data = await prisma.product.update({
+    const data = await prisma.category.update({
       where: {
         id: pdId,
       },
@@ -91,10 +72,10 @@ export const updateProducts = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteProducts = async (req: Request, res: Response) => {
+export const deleteCategory = async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
   try {
-    await prisma.product.delete({
+    await prisma.category.delete({
       where: { id },
     });
     res

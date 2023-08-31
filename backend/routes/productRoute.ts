@@ -6,10 +6,10 @@ import {
   updateProducts,
 } from "../controller/productController";
 
-const router = express.Router();
+const productRouter = express.Router();
 
-router.route("/").get(getProducts);
-router.route("/create").post(createProduct);
-router.route("/:id").put(updateProducts).delete(deleteProducts);
+productRouter.route("/").get(getProducts);
+productRouter.route("/create").post(createProduct);
+productRouter.route("/:id").put(updateProducts).delete(deleteProducts);
 
-export default router;
+export default productRouter;
